@@ -1,0 +1,63 @@
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+f.Intrinsic.Control.Try
+	'hOOK 12241, former long form, now configured for short form
+	'hook 12522, short form
+	f.ODBC.Connection!con.opencompanyconnection(60)
+	v.Local.sfilepath.Declare
+	v.Local.dDueDate.Declare
+	v.Local.sdueDate.Declare
+	v.Local.sVal.Declare
+	v.Local.sRet.Declare
+	v.Local.ssql.Declare
+	v.Local.sjob.Declare
+	v.Local.sSuf.Declare
+	v.Local.sSo.Declare
+	v.Local.sSOL.Declare
+	V.Local.iRet.Declare
+	v.Local.sparams.Declare
+	
+	f.Intrinsic.Control.SelectCase(v.Caller.Hook)
+		f.Intrinsic.Control.Case("12241")
+			v.Local.sSo.Set(v.Passed.000060)
+			v.Local.sSOL.Set(v.Passed.000051)
+		f.Intrinsic.Control.Case("12522")
+			v.Local.sSo.Set(v.Passed.000005)
+			v.Local.sSOL.Set(v.Passed.000013)
+		f.Intrinsic.Control.Case("12521")
+			v.Local.sSo.Set(v.Passed.000005)
+			v.Local.sSOL.Set(v.Passed.000013)
+	f.Intrinsic.Control.EndSelect
+	
+	F.Intrinsic.String.LPad(V.Local.sSo,"0",7,V.Local.sSo)
+	F.Intrinsic.String.LPad(V.Local.sSol,"0",3,V.Local.sSol)
+	f.Intrinsic.String.Build("SELECT JOB, SUFFIX FROM ORDER_TO_WO WHERE ORDER_NO='{0}' AND ORDER_LINE='{1}0'",v.Local.sSo,v.Local.sSOL,v.Local.ssql)
+	f.ODBC.Connection!con.ExecuteAndReturn(v.Local.ssql,v.Local.sret)
+	f.Intrinsic.String.Split(v.Local.sRet,"*!*",v.Local.sRet)
+	v.Local.sjob.Set(v.Local.sRet(0))
+	v.Local.sSuf.Set(v.Local.sRet(1))
+	F.Intrinsic.Control.If(V.Local.sjob.Trim,<>,"")
+		f.Intrinsic.UI.Msgbox("Do you want to delete work order?","Delete Work Order",4,V.Local.iRet)
+		F.Intrinsic.Control.If(V.Local.iRet,=,6)
+			f.Intrinsic.String.ConcatCallWrapperArgs(v.Local.sjob,v.Local.sSuf,v.Local.sjob,v.local.sSuf,v.Local.sparams)
+			f.Global.General.CallWrapperAsync(2070,v.Local.sparams)
+		F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.EndIf
+	
+	f.ODBC.Connection!con.Close
+	f.Intrinsic.Control.End
+	
+f.Intrinsic.Control.Catch
+	f.Intrinsic.UI.Msgbox(v.Ambient.ErrorDescription)
+	f.ODBC.Connection!con.Close
+	f.Intrinsic.Control.End
+f.Intrinsic.Control.EndTry
+	
+Program.Sub.Main.End
+
+Program.Sub.Comments.Start
+${$5$}$3.0.0.0$}$1
+${$6$}$KRoberts$}$20210211155508196$}$SCyhQZic3V3oKWb0oKsKHRmmG0BIwjdokHb7acNQTiWroIQGGR5rwTY78emci4hrs7N2E81B424R5IN6ToxP4A==
+Program.Sub.Comments.End
